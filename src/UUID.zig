@@ -39,19 +39,20 @@ pub fn newV4() Self {
     return uuid;
 }
 
-pub fn toString(self: Self, string: []u8) void {
+pub fn toString(self: Self) [36]u8 {
     var buf: [36]u8 = undefined;
 
     buf[8] = '-';
     buf[13] = '-';
     buf[18] = '-';
     buf[23] = '-';
+
     inline for (encoded_pos, 0..) |i, j| {
         buf[i + 0] = hex[self._bytes[j] >> 4];
         buf[i + 1] = hex[self._bytes[j] & 0x0f];
     }
 
-    @memcpy(string, buf[0..]);
+    return buf;
 }
 
 test {
@@ -61,15 +62,11 @@ test {
 const t = std.testing;
 
 test "generate new v4 uuid and print it via string" {
-    var buf: [36]u8 = undefined;
-    newV4().toString(&buf);
-
-    std.debug.print("{s}\n", .{buf});
+    std.debug.print("{s}\n", .{newV4().toString()});
 }
 
 test "print nil uuid v4" {
-    var buf: [36]u8 = undefined;
-    Nil.toString(&buf);
+    const buf = Nil.toString();
 
     try t.expectEqualStrings("00000000-0000-0000-0000-000000000000", &buf);
 }
